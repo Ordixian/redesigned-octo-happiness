@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// This matches your FastAPI uvicorn port
-const API_BASE_URL = "http://localhost:8000/api/v1";
+// Updated to point to your live Render backend
+const API_BASE_URL = "https://octo-qscm.onrender.com/api/v1";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
