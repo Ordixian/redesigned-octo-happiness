@@ -1,0 +1,1020 @@
+================================================================================
+FILE: App.tsx
+================================================================================
+
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import Landing from './views/Landing';
+import Verify from './views/Verify';
+import Result from './views/Result';
+import Dashboard from './views/Dashboard';
+
+function AppContent() {
+  const location = useLocation();
+  const isDashboard = location.pathname.startsWith('/dashboard');
+
+  return (
+    <div className="min-h-screen flex flex-col font-sans selection:bg-secondary/20 selection:text-secondary">
+      {!isDashboard && <Navbar />}
+      <main className="flex-grow">
+        <AnimatePresence mode="wait">
+          <Routes location={location}>
+            <Route 
+              path="/" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Landing />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/verify" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Verify />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/result" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                   <Result />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                   <Dashboard />
+                </motion.div>
+              } 
+            />
+          </Routes>
+        </AnimatePresence>
+      </main>
+      {!isDashboard && <Footer />}
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+
+
+================================================================================
+FILE: index.css
+================================================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-surface: #f8f9ff;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #45464d;
+  
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #131b2e;
+  --color-on-primary-container: #7c839b;
+  
+  --color-secondary: #0051d5;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #316bf3;
+  --color-on-secondary-container: #fefcff;
+  
+  --color-tertiary: #000000;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #00201d;
+  --color-on-tertiary-container: #0d9488;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-outline: #76777d;
+  --color-outline-variant: #c6c6cd;
+  
+  --color-inverse-surface: #213145;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-surface-tint: #565e74;
+  
+  --color-primary-fixed: #dae2fd;
+  --color-primary-fixed-dim: #bec6e0;
+  --color-on-primary-fixed: #131b2e;
+  
+  --color-secondary-fixed: #dbe1ff;
+  --color-secondary-fixed-dim: #b4c5ff;
+  --color-on-secondary-fixed: #00174b;
+  
+  --color-tertiary-fixed: #89f5e7;
+  --color-tertiary-fixed-dim: #6bd8cb;
+  --color-on-tertiary-fixed: #00201d;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-sans;
+  }
+}
+
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-xl border border-outline-variant/30;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+
+================================================================================
+FILE: main.tsx
+================================================================================
+
+import {StrictMode} from 'react';
+import {createRoot} from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+
+
+================================================================================
+FILE: api\client.ts
+================================================================================
+
+import axios from 'axios';
+
+// This matches your FastAPI uvicorn port
+const API_BASE_URL = "http://localhost:8000/api/v1";
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+export const runVerification = async (formData: FormData) => {
+  const response = await api.post("/verify/run", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+================================================================================
+FILE: components\layout\Footer.tsx
+================================================================================
+
+export default function Footer() {
+  return (
+    <footer className="bg-surface-container-low border-t border-on-surface/10 w-full py-8">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div>
+          <span className="text-xl font-bold text-on-surface block mb-2">TrustChain AI</span>
+          <p className="text-sm text-on-surface-variant max-w-sm">
+            © 2024 TrustChain AI. Digital Integrity for the African Ecosystem.
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap justify-center gap-8 text-sm font-medium text-on-surface-variant">
+          <a href="#" className="hover:text-secondary transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-secondary transition-colors">Terms of Service</a>
+          <a href="#" className="hover:text-secondary transition-colors">Security Audit</a>
+          <a href="#" className="hover:text-secondary transition-colors">Contact Support</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+
+================================================================================
+FILE: components\layout\Navbar.tsx
+================================================================================
+
+import { Bell, HelpCircle, Menu } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export default function Navbar() {
+  const location = useLocation();
+  
+  const navLinks = [
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Verify Product', href: '/verify' },
+    { name: 'Verify Vendor', href: '/verify' }, // Simplification for demo
+    { name: 'History', href: '#' },
+  ];
+
+  return (
+    <nav className="bg-surface/70 backdrop-blur-xl border-b border-on-surface/10 sticky top-0 z-50 flex justify-between items-center w-full px-4 md:px-12 py-4">
+      <div className="flex items-center gap-8 md:gap-12">
+        <Link to="/" className="font-bold text-xl md:text-2xl text-on-surface tracking-tight outline-none">
+          TrustChain AI
+        </Link>
+        <div className="hidden md:flex gap-8">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              to={link.href}
+              className={cn(
+                "text-sm font-semibold transition-colors hover:text-secondary",
+                location.pathname === link.href ? "text-secondary border-b-2 border-secondary pb-1" : "text-on-surface-variant"
+              )}
+            >
+              {link.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-4">
+        <button className="p-2 text-on-surface-variant hover:text-secondary transition-colors transition-transform active:scale-95">
+          <Bell size={20} />
+        </button>
+        <button className="p-2 text-on-surface-variant hover:text-secondary transition-colors transition-transform active:scale-95">
+          <HelpCircle size={20} />
+        </button>
+        <Link to="/verify" className="hidden sm:block outline-none">
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-secondary text-on-secondary px-6 py-2 rounded-lg text-sm font-semibold transition-shadow hover:shadow-lg hover:shadow-secondary/20"
+          >
+            Verify Now
+          </motion.button>
+        </Link>
+        <div className="md:hidden">
+            <Menu size={24} className="text-on-surface" />
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+
+================================================================================
+FILE: views\Dashboard.tsx
+================================================================================
+
+import { LayoutDashboard, BarChart3, FileText, Settings, HelpCircle, LogOut, Search, Bell, ShieldCheck, Zap, TrendingUp, AlertTriangle, CreditCard, Store, MoreHorizontal, Smartphone, Laptop, Headphones, Package, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+
+export default function Dashboard() {
+  const stats = [
+    { label: 'Total Verified', value: '42,891', change: '+12.5%', icon: <ShieldCheck />, color: 'text-secondary bg-secondary/10' },
+    { label: 'High Risk Flagged', value: '154', change: '+2.1%', icon: <AlertTriangle />, color: 'text-error bg-error/10', border: 'border-r-4 border-error' },
+    { label: 'Successful Payments', value: '₦12.4M', change: '+8.4%', icon: <CreditCard />, color: 'text-on-tertiary-container bg-on-tertiary-container/10' },
+    { label: 'Active Vendors', value: '1,208', change: '+15', icon: <Store />, color: 'text-on-primary-container bg-on-primary-container/10' },
+  ];
+
+  const recentVerifications = [
+    { date: 'Oct 24, 14:20', item: 'MacBook Pro M3', icon: <Laptop />, score: '98%', status: 'success' },
+    { date: 'Oct 24, 13:45', item: 'iPhone 15 Pro', icon: <Smartphone />, score: '12%', status: 'error' },
+    { date: 'Oct 24, 12:10', item: 'Dell XPS 15', icon: <Laptop />, score: '84%', status: 'success' },
+    { date: 'Oct 24, 11:30', item: 'Sony WH-1000XM5', icon: <Headphones />, score: 'Pending', status: 'pending' },
+  ];
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden lg:flex flex-col w-64 bg-surface border-r border-on-surface/5 p-6 shrink-0">
+        <div className="mb-12">
+          <h1 className="text-xl font-extrabold tracking-tight text-on-surface">TrustChain AI</h1>
+          <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mt-1">Enterprise Tier</p>
+        </div>
+
+        <nav className="flex-1 space-y-2">
+            {[
+                { name: 'Overview', icon: <LayoutDashboard size={20} />, active: true },
+                { name: 'Analytics', icon: <BarChart3 size={20} /> },
+                { name: 'Reports', icon: <FileText size={20} /> },
+                { name: 'Settings', icon: <Settings size={20} /> },
+            ].map((item) => (
+                <button 
+                  key={item.name}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold transition-all ${item.active ? 'bg-secondary-container text-on-secondary-container shadow-lg shadow-secondary-container/20' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+                >
+                    {item.icon}
+                    {item.name}
+                </button>
+            ))}
+        </nav>
+
+        <div className="mt-auto space-y-2 pt-6 border-t border-on-surface/5">
+            <button className="w-full mb-6 py-4 px-6 bg-on-tertiary-container text-white font-bold text-sm rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-on-tertiary-container/10">
+                Upgrade Plan
+            </button>
+            <button className="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">
+                <HelpCircle size={20} />
+                Support
+            </button>
+            <button className="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">
+                <LogOut size={20} />
+                Logout
+            </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-surface-container-lowest overflow-y-auto">
+        {/* Top Navbar */}
+        <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-on-surface/5 px-8 py-4 flex items-center justify-between">
+            <div className="flex-1 max-w-lg relative hidden md:block">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60" />
+                <input 
+                    type="text" 
+                    placeholder="Global verification search..." 
+                    className="w-full h-11 pl-12 pr-6 rounded-full bg-surface-container-low border-on-surface/10 text-sm font-medium focus:ring-2 focus:ring-secondary focus:border-transparent outline-none"
+                />
+            </div>
+            
+            <div className="flex items-center gap-6">
+                 <div className="flex items-center gap-4 text-on-surface-variant">
+                    <button className="p-2 hover:bg-surface-container rounded-full transition-colors"><Bell size={20} /></button>
+                    <button className="p-2 hover:bg-surface-container rounded-full transition-colors"><HelpCircle size={20} /></button>
+                 </div>
+                 <Link to="/verify">
+                    <button className="bg-on-surface text-on-secondary px-6 h-10 rounded-full text-xs font-bold hover:opacity-90 active:scale-95 transition-all">
+                        Verify Now
+                    </button>
+                 </Link>
+                 <div className="w-10 h-10 rounded-full overflow-hidden border border-on-surface/10 bg-surface-container-high">
+                    <img 
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJayloBn3S82ar5ASd-FxleRXQII9Ymoww5KpCg5_AL--dt13zq4cXC-A9Zw--T9oFW9Biz9Z_SU-uAEaASobPUAoY1idZ5MvVMj2eGWLZTSCG3apucMqNo_6JWCLz3tvbk380XfnZXxo2S7L1N8AFa62WDSJt98sBUFeRIJTsboF6BI5WWr5emVkEVUZ-KMMRbQe6NBVnOs6EhbXR7r5w64tMvw71Emw7hDeBxMrZriRp3Dy0eY6rUWe-msyjdMTb96WXIQrYaCg" 
+                      className="w-full h-full object-cover"
+                      alt="User"
+                    />
+                 </div>
+            </div>
+        </header>
+
+        {/* Dashboard Content */}
+        <div className="p-8 space-y-12">
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                   <h2 className="text-3xl font-bold text-on-surface">Dashboard Overview</h2>
+                   <p className="text-on-surface-variant font-medium text-base">Monitoring digital integrity across the ecosystem.</p>
+                </div>
+                <div className="flex items-center gap-3 bg-on-tertiary-container/10 px-4 py-2 rounded-xl border border-on-tertiary-container/10">
+                    <Zap size={18} fill="currentColor" className="text-on-tertiary-container" />
+                    <span className="text-sm font-bold text-on-tertiary-container">AI Engine Live Analysis</span>
+                    <div className="w-2.5 h-2.5 bg-on-tertiary-container rounded-full animate-pulse" />
+                </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, idx) => (
+                    <motion.div 
+                        key={idx}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className={`bg-white border border-on-surface/5 p-6 rounded-2xl shadow-sm relative overflow-hidden ${stat.border || ''}`}
+                    >
+                        <div className="flex justify-between items-start mb-6">
+                            <div className={`p-2.5 rounded-xl ${stat.color}`}>
+                                {stat.icon}
+                            </div>
+                            <span className="text-xs font-bold text-on-tertiary-container bg-on-tertiary-container/10 px-2 py-0.5 rounded-full">{stat.change}</span>
+                        </div>
+                        <p className="text-sm font-bold text-on-surface-variant opacity-60 mb-1">{stat.label}</p>
+                        <h3 className="text-3xl font-bold text-on-surface">{stat.value}</h3>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Main Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Table Section */}
+                <div className="lg:col-span-2 bg-white border border-on-surface/5 rounded-3xl overflow-hidden flex flex-col shadow-sm">
+                    <div className="px-8 py-6 border-b border-on-surface/5 flex justify-between items-center">
+                        <h4 className="text-xl font-bold text-on-surface">Recent Verifications</h4>
+                        <button className="text-secondary text-sm font-bold hover:underline">View All</button>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                           <thead className="bg-surface-container-low/50">
+                               <tr className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">
+                                   <th className="px-8 py-4">Date</th>
+                                   <th className="px-8 py-4">Item</th>
+                                   <th className="px-8 py-4">Trust Score</th>
+                                   <th className="px-8 py-4">Action</th>
+                               </tr>
+                           </thead>
+                           <tbody className="divide-y divide-on-surface/5">
+                               {recentVerifications.map((row, idx) => (
+                                   <tr key={idx} className="group hover:bg-surface-container-low transition-colors">
+                                       <td className="px-8 py-5 text-sm font-medium text-on-surface">{row.date}</td>
+                                       <td className="px-8 py-5">
+                                           <div className="flex items-center gap-3">
+                                               <span className="text-on-surface-variant">{row.icon}</span>
+                                               <span className="text-sm font-bold text-on-surface">{row.item}</span>
+                                           </div>
+                                       </td>
+                                       <td className="px-8 py-5">
+                                           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full w-fit ${
+                                               row.status === 'success' ? 'bg-on-tertiary-container/10 text-on-tertiary-container' : 
+                                               row.status === 'error' ? 'bg-error/10 text-error' : 
+                                               'bg-surface-container-high text-on-surface-variant'
+                                           }`}>
+                                               {row.status === 'success' && <ShieldCheck size={14} fill="currentColor" />}
+                                               {row.status === 'error' && <AlertTriangle size={14} fill="currentColor" />}
+                                               <span className="text-[11px] font-extrabold">{row.score}</span>
+                                           </div>
+                                       </td>
+                                       <td className="px-8 py-5">
+                                           <button className="px-4 py-1.5 border border-on-surface/10 text-[11px] font-bold rounded-lg group-hover:bg-on-surface group-hover:text-white transition-all">
+                                               {row.status === 'error' ? 'Investigate' : 'Details'}
+                                           </button>
+                                       </td>
+                                   </tr>
+                               ))}
+                           </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Sidebar Info */}
+                <div className="flex flex-col gap-8">
+                    {/* AI Insight */}
+                    <motion.div 
+                        whileHover={{ scale: 1.02 }}
+                        className="bg-primary-container p-8 rounded-3xl text-white relative overflow-hidden group shadow-xl shadow-primary-container/20"
+                    >
+                        <div className="relative z-10 space-y-8">
+                            <div className="flex items-center gap-3">
+                                <Zap size={24} className="text-on-tertiary-container" fill="currentColor" />
+                                <span className="text-xs font-bold text-on-primary-container uppercase tracking-widest">Strategic Insight</span>
+                            </div>
+                            <p className="text-base font-medium leading-relaxed">Vendors in the 'Consumer Electronics' segment show a 15% increase in verification success this quarter.</p>
+                            <button className="flex items-center gap-2 text-on-tertiary-container text-sm font-bold group-hover:translate-x-2 transition-transform">
+                                Read Full Audit <ArrowRight size={18} />
+                            </button>
+                        </div>
+                        <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-secondary/20 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-1000" />
+                    </motion.div>
+
+                    {/* Top Vendors */}
+                    <div className="bg-white border border-on-surface/5 p-8 rounded-3xl shadow-sm space-y-6">
+                        <h4 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Top Active Vendors</h4>
+                        <div className="space-y-6">
+                            {[
+                                { name: 'Konga Marketplace', initial: 'K', status: 'Active', color: 'text-secondary' },
+                                { name: 'Jumia Tech', initial: 'J', status: 'Active', color: 'text-secondary' },
+                                { name: 'Slot Nigeria', initial: 'S', status: 'Alert', color: 'text-error' },
+                            ].map((vendor, idx) => (
+                                <div key={idx} className="flex items-center justify-between pb-4 border-b border-on-surface/5 last:border-0 last:pb-0">
+                                   <div className="flex items-center gap-4">
+                                       <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-secondary text-lg">{vendor.initial}</div>
+                                       <span className="text-sm font-bold text-on-surface">{vendor.name}</span>
+                                   </div>
+                                   <span className={`text-[10px] font-extrabold uppercase tracking-widest ${vendor.status === 'Active' ? 'text-on-tertiary-container' : 'text-error'}`}>
+                                       {vendor.status}
+                                   </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {/* Footer */}
+        <footer className="mt-auto px-8 py-6 border-t border-on-surface/5 flex flex-col md:flex-row justify-between items-center gap-4 bg-surface-container-low/30">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+                <span className="text-lg font-bold text-on-surface">TrustChain AI</span>
+                <p className="text-xs text-on-surface-variant opacity-60">© 2024 TrustChain AI. Digital Integrity for the African Ecosystem.</p>
+            </div>
+            <div className="flex gap-8 text-xs font-bold text-on-surface-variant/60">
+                <a href="#" className="hover:text-secondary">Privacy Policy</a>
+                <a href="#" className="hover:text-secondary">Terms of Service</a>
+                <a href="#" className="hover:text-secondary">Security Audit</a>
+            </div>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
+FILE: views\Landing.tsx
+================================================================================
+
+import { ArrowRight, QrCode, ShieldCheck, Zap, BarChart3, Globe } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
+export default function Landing() {
+  return (
+    <div className="flex flex-col">
+      {/* Hero Section */}
+      <section className="relative pt-12 pb-24 px-4 md:px-12 overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px]" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-on-tertiary-container/5 rounded-full blur-[80px]" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full lg:w-1/2 space-y-8"
+          >
+            <div className="inline-flex items-center gap-2 bg-on-tertiary-container/10 text-on-tertiary-container px-4 py-1.5 rounded-full">
+              <Zap size={16} fill="currentColor" />
+              <span className="text-xs font-bold uppercase tracking-wider">AI-Powered Integrity</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-on-surface leading-[1.1] tracking-tight">
+              Verify Before You Pay. <span className="text-secondary">Secure Your Supply Chain</span> with AI.
+            </h1>
+            
+            <p className="text-lg text-on-surface-variant max-w-lg leading-relaxed">
+              Bridge the trust gap in the Nigerian retail ecosystem. Leverage advanced AI risk assessments to validate products and vendors instantly.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Link to="/verify">
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto bg-secondary text-on-secondary h-14 px-8 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-secondary/20"
+                >
+                  <QrCode size={20} />
+                  Verify Product
+                </motion.button>
+              </Link>
+              <Link to="/verify">
+                <motion.button 
+                   whileHover={{ scale: 1.02 }}
+                   whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto border-2 border-secondary text-secondary h-14 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-secondary/5 transition-colors"
+                >
+                  <ShieldCheck size={20} />
+                  Verify Vendor
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="w-full lg:w-1/2 relative"
+          >
+            <div className="bg-surface-container-low p-4 rounded-2xl border border-on-surface/10 shadow-2xl overflow-hidden group">
+              <img 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFka592mT0shieLsgMq2kuFBbUXxij4X-BZWjCFnN8HggP9jVhj8VLfbBR6O_xQfkkzYRF7z3b0w_PHNjGsZJxVGXgGkkhebXOEeFW8D_4vo_Gk9l7LQbv1OgTRkic9wYoGygVD9THjH_xLY2-9pUb9XCW-7-AH7cJ1z8R5xVtX6WnIys5io9f5r2PNZoVj8tXCqyWTZJyxO-CWGJEmgaCL2ka2SFaej9Q-cG8blsuoyRFJKedmvePpoyVjO0kW1-CbjKhxAPnpTI" 
+                alt="AI Dashboard" 
+                className="rounded-xl w-full h-auto grayscale-[0.2] transition-all duration-700 group-hover:grayscale-0"
+              />
+              {/* Floating Glass Card */}
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 1, duration: 0.5 }}
+                className="absolute bottom-10 right-10 glass-panel p-4 rounded-xl shadow-xl max-w-[240px]"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-on-tertiary-container/10 flex items-center justify-center text-on-tertiary-container">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-on-surface">Trust Score</p>
+                    <p className="text-2xl font-bold text-on-tertiary-container">98%</p>
+                  </div>
+                </div>
+                <p className="text-[10px] text-on-surface-variant font-medium">Verified via TrustChain AI Engine</p>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Partners Section */}
+      <section className="py-12 bg-white border-y border-on-surface/5">
+        <div className="max-w-7xl mx-auto px-4 md:px-12 flex flex-col items-center">
+            <p className="text-xs font-bold text-on-surface-variant mb-8 uppercase tracking-[0.2em]">Industry Partnerships</p>
+            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-50">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-secondary rounded flex items-center justify-center text-white font-bold text-xs">S</div>
+                    <span className="text-xl font-extrabold tracking-tight">Powered by Squad</span>
+                </div>
+                <span className="text-xl font-bold">Digital Integrity Hub</span>
+                <span className="text-xl font-bold">SafeTrade NG</span>
+            </div>
+        </div>
+      </section>
+
+      {/* Features Bento Grid */}
+      <section className="py-24 px-4 md:px-12 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-on-surface mb-4">Advanced Protection for Every Stakeholder</h2>
+          <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">Our multi-layered AI approach ensures that every transaction is backed by data, not just promises.</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          {/* Main Card */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="md:col-span-8 bg-white p-8 md:p-12 rounded-3xl border border-on-surface/5 flex flex-col justify-between group overflow-hidden relative"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full translate-x-1/2 -translate-y-1/2 group-hover:scale-110 transition-transform duration-700" />
+            <div className="relative z-10">
+              <div className="w-14 h-14 bg-error-container/40 text-error rounded-2xl flex items-center justify-center mb-8">
+                <ShieldCheck size={32} />
+              </div>
+              <h3 className="text-2xl font-bold text-on-surface mb-4">99.9% Fraud Reduction</h3>
+              <p className="text-on-surface-variant max-w-md text-base leading-relaxed">
+                Our neural networks analyze over 50 data points per transaction to detect counterfeit products and fraudulent vendor patterns before you part with your capital.
+              </p>
+            </div>
+            <div className="mt-12 flex gap-2 relative z-10">
+              <span className="bg-error/10 text-error px-4 py-1 rounded-full text-xs font-bold">High Risk Flagged</span>
+              <span className="bg-on-tertiary-container/10 text-on-tertiary-container px-4 py-1 rounded-full text-xs font-bold">System Alert</span>
+            </div>
+          </motion.div>
+
+          {/* Side Card */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="md:col-span-4 bg-primary-container p-8 md:p-12 rounded-3xl flex flex-col justify-between text-white"
+          >
+            <div>
+              <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8">
+                <Zap size={32} />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Squad API Native</h3>
+              <p className="text-on-primary-container text-sm leading-relaxed">
+                Seamlessly integrated with Squad's payment infrastructure for instant escrow and secure settlements.
+              </p>
+            </div>
+            <Link to="#" className="mt-8 inline-flex items-center gap-2 text-secondary-fixed text-sm font-bold group">
+                View Documentation
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </motion.div>
+
+          {/* Bottom Left */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="md:col-span-4 bg-surface-container-high p-8 md:p-12 rounded-3xl border border-on-surface/5"
+          >
+            <div className="w-14 h-14 bg-on-tertiary-container/10 text-on-tertiary-container rounded-2xl flex items-center justify-center mb-8">
+                <BarChart3 size={32} />
+            </div>
+            <h3 className="text-2xl font-bold text-on-surface mb-4">AI Trust Scores</h3>
+            <p className="text-on-surface-variant text-sm leading-relaxed">
+                Dynamic, real-time scoring system that updates vendor reliability based on historical performance and live feedback loops.
+            </p>
+          </motion.div>
+
+          {/* Bottom Right */}
+          <motion.div 
+            whileHover={{ y: -5 }}
+            className="md:col-span-8 bg-surface-container-low p-8 md:p-12 rounded-3xl border border-on-surface/5 flex flex-col md:flex-row gap-8 items-center"
+          >
+            <div className="w-full md:w-1/2">
+                <h3 className="text-2xl font-bold text-on-surface mb-4 font-sans">Built for the African Ecosystem</h3>
+                <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
+                    Tailored risk models that understand local trade nuances, from Lagos wholesalers to regional distributors.
+                </p>
+                <button className="font-bold text-sm text-secondary border-b-2 border-secondary/30 hover:border-secondary transition-all">
+                    Learn about our models
+                </button>
+            </div>
+            <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-video">
+                <img 
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_75Pf6lxCZzUmRZ8Lnhm3UNcAJ5Ui3zcl9NuHJpcAWBA9d3NG5b3aIgBwwoCXAYIOEa2DQuYhzlGz9ssLcA0sz0rKfpbvibbupmk__KoZzQ4z2ic0AOH-T8PgSwHYcTGXNaqmbGh035onzwKI3EZzANYR0qqBiPv4HpkYmz7L8nZGsAMpkoDaTVyxo1gjq_bmZwbO4Ojb6aMV2eBdVi-XO4YffD-HRfdb8Dk5N1i-diL1FXUGTiREW5HCwmEoxIJrvI0ngkhzuPA" 
+                    alt="African Hub" 
+                    className="w-full h-full object-cover"
+                />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-4 md:px-12">
+        <div className="max-w-7xl mx-auto bg-secondary rounded-[40px] p-12 md:p-24 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/80 to-primary-container/80 mix-blend-overlay" />
+          <div className="relative z-10 max-w-3xl mx-auto space-y-12">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-on-secondary tracking-tight">Ready to Secure Your Next Shipment?</h2>
+            <p className="text-xl text-on-secondary/80 max-w-2xl mx-auto">Join thousands of vendors and retailers using TrustChain AI to eliminate transaction risk.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white text-secondary h-14 px-10 rounded-2xl font-bold shadow-xl transition-all"
+              >
+                Get Started Free
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-secondary-container text-on-secondary-container h-14 px-10 rounded-2xl font-bold"
+              >
+                Talk to Sales
+              </motion.button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+================================================================================
+FILE: views\Result.tsx
+================================================================================
+
+
+import axios from 'axios';
+import { useLocation } from 'react-router-dom';
+
+export default function Result() {
+  const location = useLocation();
+  const report = location.state?.data;
+
+  if (!report) {
+    return (
+      <div className="p-10">
+        <h1>No verification result found.</h1>
+      </div>
+    );
+  }
+
+  const handlePayment = async () => {
+    try {
+      const payData = new FormData();
+
+      payData.append('email', 'customer@example.com');
+      payData.append('amount', '12500');
+      payData.append('verification_id', report.id);
+
+      const response = await axios.post(
+        'http://localhost:8000/api/v1/payments/initiate',
+        payData
+      );
+
+      if (
+        response.data.status === 200 &&
+        response.data.data.checkout_url
+      ) {
+        window.location.href = response.data.data.checkout_url;
+      } else {
+        alert("Payment initialization failed");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Payment failed");
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto py-20 px-6">
+      <h1 className="text-4xl font-bold mb-6">
+        Verification Result
+      </h1>
+
+      <div className="bg-white rounded-2xl p-8 shadow">
+        <p><strong>Verification ID:</strong> {report.id}</p>
+
+        <p className="mt-4">
+          <strong>Verdict:</strong>{" "}
+          {report.analysis.verdict}
+        </p>
+
+        <p className="mt-2">
+          <strong>Risk Level:</strong>{" "}
+          {report.analysis.level}
+        </p>
+
+        <p className="mt-2">
+          <strong>Trust Score:</strong>{" "}
+          {report.analysis.score}
+        </p>
+
+        <div className="mt-6">
+          <h2 className="font-bold mb-2">Flags</h2>
+
+          <ul className="list-disc ml-6">
+            {report.analysis.flags.map(
+              (flag: string, idx: number) => (
+                <li key={idx}>{flag}</li>
+              )
+            )}
+          </ul>
+        </div>
+
+        <button
+          onClick={handlePayment}
+          className="mt-8 bg-blue-600 text-white px-6 py-3 rounded-xl"
+        >
+          Proceed to Payment
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
+FILE: views\Verify.tsx
+================================================================================
+
+import { useState, FormEvent, ChangeEvent } from 'react';
+import { Camera, Package, ShieldCheck, Sparkles, Info } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { runVerification } from '../api/client';
+
+export default function Verify() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [productData, setProductData] = useState({
+    name: '',
+    batch: '',
+    nafdac: '',
+    vendor: ''
+  });
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setProductData({ ...productData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) setImage(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!image) {
+      alert("Please upload a product image first.");
+      return;
+    }
+    
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('product_name', productData.name);
+    formData.append('nafdac_no', productData.nafdac);
+    formData.append('price', "5000"); // Hardcoded for now per backend requirement
+    formData.append('vendor_name', productData.vendor);
+    formData.append('image', image);
+
+    try {
+      const result = await runVerification(formData);
+      // Navigate to results and pass the backend analysis
+      navigate('/result', { state: { data: result } });
+    } catch (error) {
+      console.error("Verification failed", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto w-full px-4 md:px-12 py-12">
+      <div className="mb-12">
+        <h1 className="text-3xl font-bold text-on-surface mb-2">Forensic Intelligence</h1>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        {/* Product Section */}
+        <section className="glass-panel p-8 rounded-2xl border border-on-surface/10">
+          <div className="flex items-center gap-3 mb-10 text-on-surface">
+            <Package /> <h2 className="text-2xl font-bold">Product Registry</h2>
+          </div>
+
+          <div className="group border-2 border-dashed border-on-surface/10 rounded-2xl p-16 flex flex-col items-center justify-center bg-surface-container-low relative">
+            <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+            <Camera size={48} className="text-on-surface-variant mb-4" />
+            <p className="text-sm font-bold text-on-surface">{image ? image.name : "Upload Product Image"}</p>
+          </div>
+
+          <div className="mt-8 space-y-6">
+            <input name="name" onChange={handleInputChange} placeholder="Product Name" className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-white" />
+            <div className="grid grid-cols-2 gap-4">
+               <input name="batch" onChange={handleInputChange} placeholder="Batch No" className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-white" />
+               <input name="nafdac" onChange={handleInputChange} placeholder="NAFDAC No" className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-white" />
+            </div>
+          </div>
+        </section>
+
+        {/* Vendor Section */}
+        <section className="glass-panel p-8 rounded-2xl border border-on-surface/10">
+          <div className="flex items-center gap-3 mb-10 text-secondary">
+            <ShieldCheck /> <h2 className="text-2xl font-bold text-on-surface">Vendor Intelligence</h2>
+          </div>
+          <input name="vendor" onChange={handleInputChange} placeholder="Vendor/Business Name" className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-white" />
+        </section>
+      </div>
+
+      <div className="flex flex-col items-center gap-6">
+        <button 
+          onClick={handleSubmit}
+          disabled={loading}
+          className="bg-on-tertiary-container text-white px-12 h-14 rounded-xl font-bold flex items-center gap-3 shadow-xl"
+        >
+          <Sparkles size={20} />
+          {loading ? "Analyzing Neural Data..." : "Run AI Verification"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+

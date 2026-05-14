@@ -1,0 +1,4 @@
+
+npm install
+npm install axios react-router-dom framer-motion lucide-react clsx tailwind-merge
+npm run dev

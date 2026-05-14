@@ -1,0 +1,343 @@
+================================================================================
+FILE: app\database.py
+================================================================================
+
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# We pull the URL from the .env file
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./trustchain.db")
+
+# The engine is the actual connection to the database
+# "check_same_thread" is only needed for SQLite
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    )
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+# This class will be used to create database sessions
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# This is the base class for our database models (the tables)
+Base = declarative_base()
+
+# Dependency: This opens a connection when an API call starts and closes it when done
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+================================================================================
+FILE: app\main.py
+================================================================================
+
+import os
+import time
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from dotenv import load_dotenv
+
+from app.api import verify, payments
+
+load_dotenv()
+
+app = FastAPI(
+    title="TrustChain AI Core",
+    description="Product & Vendor Verification Engine",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal Server Error",
+            "message": str(exc),
+            "path": request.url.path
+        }
+    )
+
+app.include_router(verify.router, prefix="/api/v1/verify", tags=["Verification"])
+app.include_router(payments.router, prefix="/api/v1/payments", tags=["Payments"])
+
+@app.get("/", tags=["System"])
+async def health_check():
+    squad_status = "Active" if os.getenv("SQUAD_SECRET_KEY") else "Key Missing"
+    return {
+        "project": "TrustChain AI",
+        "status": "Operational",
+        "squad_gateway": squad_status,
+        "timestamp": time.time()
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+================================================================================
+FILE: app\__init__.py
+================================================================================
+
+# TrustChain AI — App Package
+# Router registration is handled in app/main.py
+# Do NOT put app.include_router() calls here — `app` doesn't exist at this scope
+
+
+================================================================================
+FILE: app\api\payments.py
+================================================================================
+
+import os
+import httpx
+from fastapi import APIRouter, HTTPException, Form
+from app.core.config import settings
+
+router = APIRouter()
+
+# Squad Sandbox URL for testing
+SQUAD_URL = "https://sandbox-api-d.squadco.com/transaction/initiate"
+
+@router.post("/initiate")
+async def initiate_payment(
+    email: str = Form(...),
+    amount: float = Form(...),
+    verification_id: str = Form(...)
+):
+    if not settings.SQUAD_SECRET_KEY:
+        raise HTTPException(status_code=500, detail="Squad API key missing")
+
+    headers = {
+        "Authorization": f"Bearer {settings.SQUAD_SECRET_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    # Squad expects amount in Kobo (10000 = 100 NGN)
+    payload = {
+        "amount": int(amount * 100),
+        "email": email,
+        "currency": "NGN",
+        "initiate_type": "inline",
+        "metadata": {"verification_id": verification_id}
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(SQUAD_URL, json=payload, headers=headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.json())
+        
+        # The frontend needs the 'checkout_url' from the data object
+        return response.json()
+
+
+================================================================================
+FILE: app\api\verify.py
+================================================================================
+
+from fastapi import APIRouter, UploadFile, File, Form
+from app.core.scoring import calculate_trust_score
+
+router = APIRouter()
+
+@router.post("/run")
+async def verify_submission(
+    product_name: str = Form(...),
+    nafdac_no: str = Form(...),
+    price: float = Form(...),
+    vendor_name: str = Form(...),
+    image: UploadFile = File(...)
+):
+    # Simple mock validation
+    is_nafdac_valid = nafdac_no.startswith("A7")
+
+    mock_product_data = {
+        "is_nafdac_valid": is_nafdac_valid,
+        "price": price,
+        "market_avg": 5000,
+        "expiry_status": "active"
+    }
+
+    mock_vendor_data = {
+        "years_in_business": 2,
+        "complaint_count": 0,
+        "is_cac_registered": True
+    }
+
+    analysis = calculate_trust_score(
+        mock_product_data,
+        mock_vendor_data
+    )
+
+    return {
+        "id": "TRC-DEMO",
+        "product_name": product_name,
+        "vendor_name": vendor_name,
+        "analysis": analysis.dict()
+    }
+
+================================================================================
+FILE: app\api\__init__.py
+================================================================================
+
+from .verify import router as verify_router
+from .payments import router as payments_router
+
+# This allows for cleaner imports elsewhere
+__all__ = ["verify_router", "payments_router"]
+
+================================================================================
+FILE: app\core\config.py
+================================================================================
+
+import os
+from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+
+# Load the .env file from the root directory
+load_dotenv()
+
+class Settings(BaseSettings):
+    PROJECT_NAME: str = "TrustChain AI"
+    VERSION: str = "1.0.0"
+    APP_ENV: str = os.getenv("APP_ENV", "development")
+    
+    # Squad API Keys
+    SQUAD_SECRET_KEY: str = os.getenv("SQUAD_SECRET_KEY")
+    SQUAD_BASE_URL: str = "https://api-d.squadco.com" # Sandbox URL
+    
+    # Database Configuration
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/trustchain")
+    
+    # File Uploads
+    MAX_UPLOAD_SIZE: int = 5242880 # 5MB limit
+    ALLOWED_EXTENSIONS: list = ["jpg", "jpeg", "png"]
+
+    class Config:
+        case_sensitive = True
+
+# Global instance to be used across the app
+settings = Settings()
+
+================================================================================
+FILE: app\core\scoring.py
+================================================================================
+
+from pydantic import BaseModel
+from typing import List
+
+class RiskResult(BaseModel):
+    score: int
+    level: str
+    flags: List[str]
+    verdict: str
+
+def calculate_trust_score(product: dict, vendor: dict) -> RiskResult:
+    score = 100
+    flags = []
+
+    # Product Logic
+    if not product.get("is_nafdac_valid"):
+        score -= 35
+        flags.append("Invalid or unverified NAFDAC registration")
+    
+    if product.get("price") < (product.get("market_avg", 0) * 0.6):
+        score -= 20
+        flags.append("Price significantly below market average")
+        
+    if product.get("expiry_status") == "expired":
+        score -= 40
+        flags.append("Product is past its expiration date")
+
+    # Vendor Logic
+    if vendor.get("years_in_business", 0) < 1:
+        score -= 15
+        flags.append("Vendor has less than 1 year of verified history")
+        
+    if vendor.get("complaint_count", 0) > 2:
+        score -= 25
+        flags.append("Multiple unresolved consumer complaints detected")
+
+    if not vendor.get("is_cac_registered"):
+        score -= 20
+        flags.append("Vendor not found in CAC business registry")
+
+    # Final Calculation
+    score = max(0, min(score, 100))
+    
+    if score >= 80:
+        level = "LOW"
+        verdict = "Likely Genuine"
+    elif score >= 60:
+        level = "MEDIUM"
+        verdict = "Suspicious - Proceed with Caution"
+    else:
+        level = "HIGH"
+        verdict = "High Risk - Fraud Likely"
+
+    return RiskResult(score=score, level=level, flags=flags, verdict=verdict)
+
+================================================================================
+FILE: app\core\__init__.py
+================================================================================
+
+from .config import settings
+from .scoring import calculate_trust_score
+
+__all__ = ["settings", "calculate_trust_score"]
+
+================================================================================
+FILE: app\services\ocr.py
+================================================================================
+
+import pytesseract
+from PIL import Image
+
+def extract_label_text(image_path: str):
+    """
+    Lightweight OCR using Tesseract (No PyTorch required).
+    """
+    try:
+        # Open the image using Pillow
+        img = Image.open(image_path)
+        # Extract text
+        text = pytesseract.image_to_string(img)
+        return text.upper()
+    except Exception as e:
+        print(f"OCR Error: {e}")
+        return ""
+
+
+================================================================================
+FILE: app\services\__init__.py
+================================================================================
+
+from .ocr import extract_label_text
+
+__all__ = ["extract_label_text"]
+
