@@ -1,11 +1,20 @@
-import { ArrowRight, QrCode, ShieldCheck, Zap, BarChart3 } from 'lucide-react';
+import { ArrowRight, QrCode, ShieldCheck, Zap, BarChart3, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function Landing() {
   return (
     <div className="flex flex-col">
-      {/* Hero */}
       <section className="relative pt-12 pb-24 px-4 md:px-12 overflow-hidden">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px]" />
@@ -25,13 +34,11 @@ export default function Landing() {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-on-surface leading-[1.1] tracking-tight">
-              Verify Before You Pay.{' '}
-              <span className="text-secondary">Secure Your Supply Chain</span> with AI.
+              Verify Before You Pay. <span className="text-secondary">Secure Your Supply Chain</span> with AI.
             </h1>
 
             <p className="text-lg text-on-surface-variant max-w-lg leading-relaxed">
-              Bridge the trust gap in the Nigerian retail ecosystem. Leverage advanced AI risk
-              assessments to validate products and vendors instantly.
+              Bridge the trust gap in the Nigerian retail ecosystem. Leverage advanced AI risk assessments to validate products and vendors instantly.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -65,7 +72,6 @@ export default function Landing() {
             className="w-full lg:w-1/2 relative"
           >
             <div className="bg-surface-container-low p-4 rounded-2xl border border-on-surface/10 shadow-2xl overflow-hidden group">
-              {/* ── FIXED: was lh3.googleusercontent.com ── */}
               <img
                 src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=70"
                 alt="AI Dashboard"
@@ -93,7 +99,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Partners */}
       <section className="py-12 bg-white border-y border-on-surface/5">
         <div className="max-w-7xl mx-auto px-4 md:px-12 flex flex-col items-center">
           <p className="text-xs font-bold text-on-surface-variant mb-8 uppercase tracking-[0.2em]">Industry Partnerships</p>
@@ -108,15 +113,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Bento Grid */}
       <section className="py-24 px-4 md:px-12 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-on-surface mb-4">
-            Advanced Protection for Every Stakeholder
-          </h2>
-          <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">
-            Our multi-layered AI approach ensures that every transaction is backed by data, not just promises.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-on-surface mb-4">Advanced Protection for Every Stakeholder</h2>
+          <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">Our multi-layered AI approach ensures that every transaction is backed by data, not just promises.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -131,8 +131,7 @@ export default function Landing() {
               </div>
               <h3 className="text-2xl font-bold text-on-surface mb-4">99.9% Fraud Reduction</h3>
               <p className="text-on-surface-variant max-w-md text-base leading-relaxed">
-                Our neural networks analyze over 50 data points per transaction to detect counterfeit
-                products and fraudulent vendor patterns before you part with your capital.
+                Our neural networks analyze over 50 data points per transaction to detect counterfeit products and fraudulent vendor patterns before you part with your capital.
               </p>
             </div>
             <div className="mt-12 flex gap-2 relative z-10">
@@ -146,7 +145,7 @@ export default function Landing() {
             className="md:col-span-4 bg-primary-container p-8 md:p-12 rounded-3xl flex flex-col justify-between text-white"
           >
             <div>
-              <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-8">
+              <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8">
                 <Zap size={32} />
               </div>
               <h3 className="text-2xl font-bold mb-4">Squad API Native</h3>
@@ -169,8 +168,7 @@ export default function Landing() {
             </div>
             <h3 className="text-2xl font-bold text-on-surface mb-4">AI Trust Scores</h3>
             <p className="text-on-surface-variant text-sm leading-relaxed">
-              Dynamic, real-time scoring system that updates vendor reliability based on historical
-              performance and live feedback loops.
+              Dynamic, real-time scoring system that updates vendor reliability based on historical performance and live feedback loops.
             </p>
           </motion.div>
 
@@ -179,7 +177,7 @@ export default function Landing() {
             className="md:col-span-8 bg-surface-container-low p-8 md:p-12 rounded-3xl border border-on-surface/5 flex flex-col md:flex-row gap-8 items-center"
           >
             <div className="w-full md:w-1/2">
-              <h3 className="text-2xl font-bold text-on-surface mb-4">Built for the African Ecosystem</h3>
+              <h3 className="text-2xl font-bold text-on-surface mb-4 font-sans">Built for the African Ecosystem</h3>
               <p className="text-on-surface-variant text-sm leading-relaxed mb-6">
                 Tailored risk models that understand local trade nuances, from Lagos wholesalers to regional distributors.
               </p>
@@ -188,10 +186,9 @@ export default function Landing() {
               </button>
             </div>
             <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-video">
-              {/* ── FIXED: was lh3.googleusercontent.com ── */}
               <img
                 src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&auto=format&fit=crop&q=70"
-                alt="African marketplace"
+                alt="African Hub"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -199,27 +196,20 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-24 px-4 md:px-12">
         <div className="max-w-7xl mx-auto bg-secondary rounded-[40px] p-12 md:p-24 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-secondary/80 to-primary-container/80 mix-blend-overlay" />
           <div className="relative z-10 max-w-3xl mx-auto space-y-12">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-on-secondary tracking-tight">
-              Ready to Secure Your Next Shipment?
-            </h2>
-            <p className="text-xl text-on-secondary/80 max-w-2xl mx-auto">
-              Join thousands of vendors and retailers using TrustChain AI to eliminate transaction risk.
-            </p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-on-secondary tracking-tight">Ready to Secure Your Next Shipment?</h2>
+            <p className="text-xl text-on-secondary/80 max-w-2xl mx-auto">Join thousands of vendors and retailers using TrustChain AI to eliminate transaction risk.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/verify">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-white text-secondary h-14 px-10 rounded-2xl font-bold shadow-xl transition-all"
-                >
-                  Get Started Free
-                </motion.button>
-              </Link>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white text-secondary h-14 px-10 rounded-2xl font-bold shadow-xl transition-all"
+              >
+                Get Started Free
+              </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
