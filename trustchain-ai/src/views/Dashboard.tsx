@@ -1,174 +1,123 @@
-import { LayoutDashboard, BarChart3, FileText, Settings, HelpCircle, LogOut, Search, Bell, ShieldCheck, Zap, AlertTriangle, CreditCard, Store, Smartphone, Laptop, Headphones, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { 
+  Zap, Shield, Search, History, 
+  ChevronRight, ArrowUpRight, CheckCircle, 
+  AlertCircle, Activity
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
   const stats = [
-    { label: 'Total Verified', value: '42,891', change: '+12.5%', icon: <ShieldCheck />, color: 'text-secondary bg-secondary/10' },
-    { label: 'High Risk Flagged', value: '154', change: '+2.1%', icon: <AlertTriangle />, color: 'text-error bg-error/10', border: 'border-r-4 border-error' },
-    { label: 'Successful Payments', value: '₦12.4M', change: '+8.4%', icon: <CreditCard />, color: 'text-on-tertiary-container bg-on-tertiary-container/10' },
-    { label: 'Active Vendors', value: '1,208', change: '+15', icon: <Store />, color: 'text-on-primary-container bg-on-primary-container/10' },
+    { label: 'Total Scans', value: '1,284', icon: Search, color: 'bg-blue-500/10 text-blue-500' },
+    { label: 'Verified Authentic', value: '1,102', icon: CheckCircle, color: 'bg-emerald-500/10 text-emerald-500' },
+    { label: 'Flagged Risks', value: '182', icon: AlertCircle, color: 'bg-rose-500/10 text-rose-500' },
   ];
 
-  const recentVerifications = [
-    { date: 'Oct 24, 14:20', item: 'MacBook Pro M3', icon: <Laptop />, score: '98%', status: 'success' },
-    { date: 'Oct 24, 13:45', item: 'iPhone 15 Pro', icon: <Smartphone />, score: '12%', status: 'error' },
-    { date: 'Oct 24, 12:10', item: 'Dell XPS 15', icon: <Laptop />, score: '84%', status: 'success' },
-    { date: 'Oct 24, 11:30', item: 'Sony WH-1000XM5', icon: <Headphones />, score: 'Pending', status: 'pending' },
+  const recentActivity = [
+    { id: 'TX-9021', name: 'Paracetamol 500mg', status: 'Authentic', time: '2 mins ago' },
+    { id: 'TX-9020', name: 'Amoxicillin Caps', status: 'Flagged', time: '15 mins ago' },
+    { id: 'TX-9019', name: 'Vitamin C Syrup', status: 'Authentic', time: '1 hour ago' },
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <aside className="hidden lg:flex flex-col w-64 bg-surface border-r border-on-surface/5 p-6 shrink-0">
-        <div className="mb-12">
-          <h1 className="text-xl font-extrabold tracking-tight text-on-surface">TrustChain AI</h1>
-          <p className="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mt-1">Enterprise Tier</p>
-        </div>
-        <nav className="flex-1 space-y-2">
-          {[
-            { name: 'Overview', icon: <LayoutDashboard size={20} />, active: true },
-            { name: 'Analytics', icon: <BarChart3 size={20} /> },
-            { name: 'Reports', icon: <FileText size={20} /> },
-            { name: 'Settings', icon: <Settings size={20} /> },
-          ].map((item) => (
-            <button
-              key={item.name}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold transition-all ${item.active ? 'bg-secondary-container text-on-secondary-container shadow-lg shadow-secondary-container/20' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
-            >
-              {item.icon}
-              {item.name}
-            </button>
-          ))}
-        </nav>
-        <div className="mt-auto space-y-2 pt-6 border-t border-on-surface/5">
-          <button className="w-full mb-6 py-4 px-6 bg-on-tertiary-container text-white font-bold text-sm rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-on-tertiary-container/10">
-            Upgrade Plan
-          </button>
-          <button className="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">
-            <HelpCircle size={20} /> Support
-          </button>
-          <button className="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">
-            <LogOut size={20} /> Logout
-          </button>
-        </div>
-      </aside>
+    <div className="max-w-7xl mx-auto w-full px-4 md:px-12 py-12">
+      <header className="mb-12">
+        <h1 className="text-3xl font-bold text-on-surface mb-2">Trust Intelligence Dashboard</h1>
+        <p className="text-on-surface-variant">Real-time monitoring of your verified pharmaceutical supply chain.</p>
+      </header>
 
-      <div className="flex-1 flex flex-col min-w-0 bg-surface-container-lowest overflow-y-auto">
-        <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-on-surface/5 px-8 py-4 flex items-center justify-between">
-          <div className="flex-1 max-w-lg relative hidden md:block">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60" />
-            <input
-              type="text"
-              placeholder="Global verification search..."
-              className="w-full h-11 pl-12 pr-6 rounded-full bg-surface-container-low border-on-surface/10 text-sm font-medium focus:ring-2 focus:ring-secondary focus:border-transparent outline-none"
-            />
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4 text-on-surface-variant">
-              <button className="p-2 hover:bg-surface-container rounded-full transition-colors"><Bell size={20} /></button>
-              <button className="p-2 hover:bg-surface-container rounded-full transition-colors"><HelpCircle size={20} /></button>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        {stats.map((stat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className="glass-panel p-6 rounded-2xl border border-on-surface/5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-xl ${stat.color}`}>
+                <stat.icon size={24} />
+              </div>
+              <Activity size={16} className="text-on-surface-variant opacity-30" />
             </div>
-            <Link to="/verify">
-              <button className="bg-on-surface text-on-secondary px-6 h-10 rounded-full text-xs font-bold hover:opacity-90 active:scale-95 transition-all">
-                Verify Now
+            <p className="text-sm font-bold text-on-surface-variant mb-1 uppercase tracking-widest">{stat.label}</p>
+            <h2 className="text-3xl font-bold text-on-surface">{stat.value}</h2>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Main Section */}
+        <section className="lg:col-span-8 space-y-8">
+          <div className="glass-panel rounded-3xl p-8 border border-on-surface/5">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-bold flex items-center gap-3">
+                <History size={20} className="text-secondary" />
+                Recent Verifications
+              </h3>
+              <button className="text-xs font-bold text-secondary uppercase tracking-widest flex items-center gap-1 hover:opacity-70 transition-opacity">
+                View Full Logs <ChevronRight size={14} />
               </button>
-            </Link>
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-on-surface/10 bg-surface-container-high">
-              <img
-                src="https://api.dicebear.com/7.x/initials/svg?seed=TC&backgroundColor=0051d5"
-                className="w-full h-full object-cover"
-                alt="User"
-              />
             </div>
-          </div>
-        </header>
 
-        <div className="p-8 space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h2 className="text-3xl font-bold text-on-surface">Dashboard Overview</h2>
-              <p className="text-on-surface-variant font-medium text-base">Monitoring digital integrity across the ecosystem.</p>
-            </div>
-            <div className="flex items-center gap-3 bg-on-tertiary-container/10 px-4 py-2 rounded-xl border border-on-tertiary-container/10">
-              <Zap size={18} fill="currentColor" className="text-on-tertiary-container" />
-              <span className="text-sm font-bold text-on-tertiary-container">AI Engine Live Analysis</span>
-              <div className="w-2.5 h-2.5 bg-on-tertiary-container rounded-full animate-pulse" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`bg-white border border-on-surface/5 p-6 rounded-2xl shadow-sm relative overflow-hidden ${stat.border || ''}`}
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <div className={`p-2.5 rounded-xl ${stat.color}`}>{stat.icon}</div>
-                  <span className="text-xs font-bold text-on-tertiary-container bg-on-tertiary-container/10 px-2 py-0.5 rounded-full">{stat.change}</span>
+            <div className="space-y-4">
+              {recentActivity.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-surface-container-low border border-on-surface/5 hover:bg-surface-container-high transition-colors cursor-pointer">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.status === 'Authentic' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                      <Shield size={18} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-on-surface">{item.name}</p>
+                      <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{item.id}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-xs font-bold ${item.status === 'Authentic' ? 'text-emerald-500' : 'text-rose-500'}`}>{item.status}</p>
+                    <p className="text-[10px] text-on-surface-variant mt-0.5">{item.time}</p>
+                  </div>
                 </div>
-                <p className="text-sm font-bold text-on-surface-variant opacity-60 mb-1">{stat.label}</p>
-                <h3 className="text-3xl font-bold text-on-surface">{stat.value}</h3>
-              </motion.div>
-            ))}
+              ))}
+            </div>
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-white border border-on-surface/5 rounded-3xl overflow-hidden flex flex-col shadow-sm">
-              <div className="px-8 py-6 border-b border-on-surface/5 flex justify-between items-center">
-                <h4 className="text-xl font-bold text-on-surface">Recent Verifications</h4>
-                <button className="text-secondary text-sm font-bold hover:underline">View All</button>
+        {/* Sidebar Actions */}
+        <aside className="lg:col-span-4 space-y-6">
+          <Link to="/verify">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-on-tertiary-container text-white p-8 rounded-3xl shadow-xl shadow-on-tertiary-container/20 flex flex-col items-center text-center cursor-pointer mb-6"
+            >
+              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
+                <Zap size={32} />
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-surface-container-low/50">
-                    <tr className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">
-                      <th className="px-8 py-4">Date</th>
-                      <th className="px-8 py-4">Item</th>
-                      <th className="px-8 py-4">Trust Score</th>
-                      <th className="px-8 py-4">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-on-surface/5">
-                    {recentVerifications.map((row, idx) => (
-                      <tr key={idx} className="group hover:bg-surface-container-low transition-colors">
-                        <td className="px-8 py-5 text-sm font-medium text-on-surface">{row.date}</td>
-                        <td className="px-8 py-5">
-                          <div className="flex items-center gap-3">
-                            <span className="text-on-surface-variant">{row.icon}</span>
-                            <span className="text-sm font-bold text-on-surface">{row.item}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5">
-                          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full w-fit ${
-                            row.status === 'success' ? 'bg-on-tertiary-container/10 text-on-tertiary-container' :
-                            row.status === 'error' ? 'bg-error/10 text-error' :
-                            'bg-surface-container-high text-on-surface-variant'
-                          }`}>
-                            {row.status === 'success' && <ShieldCheck size={14} fill="currentColor" />}
-                            {row.status === 'error' && <AlertTriangle size={14} fill="currentColor" />}
-                            <span className="text-[11px] font-extrabold">{row.score}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5">
-                          <button className="px-4 py-1.5 border border-on-surface/10 text-[11px] font-bold rounded-lg group-hover:bg-on-surface group-hover:text-white transition-all">
-                            {row.status === 'error' ? 'Investigate' : 'Details'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <h4 className="text-xl font-bold mb-2">New Verification</h4>
+              <p className="text-sm text-white/70 mb-6">Instantly scan and verify medical products using forensic AI.</p>
+              <div className="h-12 w-full bg-white text-on-tertiary-container rounded-xl flex items-center justify-center font-bold gap-2">
+                Launch Scanner <ArrowUpRight size={18} />
+              </div>
+            </motion.div>
+          </Link>
+
+          <div className="glass-panel p-6 rounded-2xl border border-on-surface/5">
+            <h4 className="text-sm font-bold mb-4 uppercase tracking-widest text-on-surface-variant">System Status</h4>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">NAFDAC Registry</span>
+                <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-500 uppercase"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium">AI Analysis Engine</span>
+                <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-500 uppercase"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Online</span>
               </div>
             </div>
-
-            <div className="flex flex-col gap-8">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="bg-primary-container p-8 rounded-3xl text-white relative overflow-hidden group shadow-xl shadow-primary-container/20"
-              >
-                <div className="relative z-10 space-y-8">
-                  <div className="flex items-center gap-3">
-                    <Zap size={24} className="text-on-tertiary-cont
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
