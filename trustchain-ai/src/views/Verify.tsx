@@ -7,10 +7,14 @@ import { runVerification } from '../api/client';
 export default function Verify() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [image, setImage]     = useState<File | null>(null);
-  const [error, setError]     = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [productData, setProductData] = useState({
-    name: '', batch: '', nafdac: '', vendor: '', price: ''
+    name: '',
+    batch: '',
+    nafdac: '',
+    vendor: '',
+    price: ''
   });
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -18,13 +22,16 @@ export default function Verify() {
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) setImage(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    // Validation
     if (!productData.name.trim()) return setError('Product name is required.');
     if (!productData.nafdac.trim()) return setError('NAFDAC number is required.');
     if (!productData.vendor.trim()) return setError('Vendor name is required.');
@@ -39,8 +46,10 @@ export default function Verify() {
 
     try {
       const result = await runVerification(formData);
+      // Navigate to results and pass the backend analysis
       navigate('/result', { state: { data: result } });
     } catch (err: unknown) {
+      console.error("Verification failed", err);
       setError(err instanceof Error ? err.message : 'Verification failed. Is the backend running?');
     } finally {
       setLoading(false);
@@ -63,8 +72,7 @@ export default function Verify() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-
-        {/* Product */}
+        {/* Product Section */}
         <section className="glass-panel p-8 rounded-2xl border border-on-surface/10">
           <div className="flex items-center gap-3 mb-10 text-on-surface">
             <Package />
@@ -114,19 +122,9 @@ export default function Verify() {
               className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-white focus:ring-2 focus:ring-secondary outline-none"
             />
           </div>
-
-          <div className="mt-8 p-4 bg-on-tertiary-container/5 rounded-xl flex items-center gap-4 border border-on-tertiary-container/10">
-            <div className="relative flex h-3 w-3 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-on-tertiary-container opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-on-tertiary-container" />
-            </div>
-            <p className="text-xs font-bold text-on-tertiary-container">
-              TrustChain AI is ready to analyze labels and barcodes.
-            </p>
-          </div>
         </section>
 
-        {/* Vendor */}
+        {/* Vendor Section */}
         <section className="glass-panel p-8 rounded-2xl border border-on-surface/10">
           <div className="flex items-center gap-3 mb-10 text-secondary">
             <ShieldCheck />
