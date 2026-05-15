@@ -12,7 +12,6 @@ export default function Result() {
   const location = useLocation();
   const report = location.state?.data;
 
-  // ── Payment modal state ───────────────────────────────────────────────────
   const [showPayment, setShowPayment] = useState(false);
   const [payEmail, setPayEmail]       = useState('');
   const [payAmount, setPayAmount]     = useState('12500');
@@ -21,7 +20,6 @@ export default function Result() {
   const [paySuccess, setPaySuccess]   = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
-  // ── No data guard ─────────────────────────────────────────────────────────
   if (!report) {
     return (
       <div className="max-w-2xl mx-auto py-20 px-6 text-center">
@@ -29,7 +27,7 @@ export default function Result() {
           <AlertTriangle size={48} className="text-error mx-auto mb-6" />
           <h1 className="text-2xl font-bold text-on-surface mb-3">No Result Found</h1>
           <p className="text-on-surface-variant mb-8">
-            You haven't run a verification yet. Start by submitting a product and vendor.
+            You haven't run a verification yet.
           </p>
           <Link to="/verify">
             <button className="bg-secondary text-on-secondary px-8 h-12 rounded-xl font-bold">
@@ -42,30 +40,23 @@ export default function Result() {
   }
 
   const { analysis } = report;
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
-  const isLow    = analysis.level === 'LOW';
-  const isMed    = analysis.level === 'MEDIUM';
-  const isHigh   = analysis.level === 'HIGH';
-
-  const ringColor = isLow ? '#0d9488' : isMed ? '#0051d5' : '#ba1a1a';
+  const isLow  = analysis.level === 'LOW';
+  const isMed  = analysis.level === 'MEDIUM';
+  const isHigh = analysis.level === 'HIGH';
+  const ringColor  = isLow ? '#0d9488' : isMed ? '#0051d5' : '#ba1a1a';
   const ringOffset = 502 - (analysis.score / 100) * 502;
 
-  // ── Payment handler ───────────────────────────────────────────────────────
   const handlePayment = async () => {
     setPayError(null);
     if (!payEmail) return setPayError('Email is required.');
     if (!payAmount || isNaN(Number(payAmount))) return setPayError('Enter a valid amount.');
-
     setPayLoading(true);
     try {
       const payData = new FormData();
       payData.append('email', payEmail);
       payData.append('amount', payAmount);
       payData.append('verification_id', report.id);
-
       const response = await api.post('/payments/initiate', payData);
-
       if (response.status === 200 && response.data?.checkout_url) {
         setCheckoutUrl(response.data.checkout_url);
         setPaySuccess(true);
@@ -73,8 +64,7 @@ export default function Result() {
         setPayError('Payment initialization failed. Try again.');
       }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Payment failed.';
-      setPayError(msg);
+      setPayError(error instanceof Error ? error.message : 'Payment failed.');
     } finally {
       setPayLoading(false);
     }
@@ -83,7 +73,7 @@ export default function Result() {
   return (
     <div className="max-w-7xl mx-auto w-full px-4 md:px-12 py-12">
 
-      {/* ── Header ────────────────────────────────────────────────────────── */}
+      {/* Header */}
       <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <nav className="flex items-center gap-1 text-on-surface-variant mb-2 text-xs font-bold">
@@ -95,7 +85,6 @@ export default function Result() {
           </nav>
           <h1 className="text-3xl font-bold text-on-surface">Verification Result</h1>
         </div>
-
         <div
           className="flex items-center gap-2 px-4 py-3 rounded-xl text-white text-sm font-bold shadow-lg"
           style={{ backgroundColor: ringColor }}
@@ -105,7 +94,7 @@ export default function Result() {
         </div>
       </div>
 
-      {/* ── Main Grid ─────────────────────────────────────────────────────── */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
 
         {/* Score Ring */}
@@ -118,7 +107,6 @@ export default function Result() {
           <span className="text-xs font-bold text-on-surface-variant mb-6 uppercase tracking-widest">
             Trust Score Index
           </span>
-
           <div className="relative flex items-center justify-center mb-6">
             <svg className="w-44 h-44 -rotate-90">
               <circle cx="88" cy="88" r="80" fill="transparent"
@@ -148,13 +136,11 @@ export default function Result() {
               </span>
             </div>
           </div>
-
           <div className="px-6 py-2 rounded-full font-bold text-xs text-white flex items-center gap-2"
             style={{ backgroundColor: ringColor }}>
             <ShieldCheck size={14} />
             {isLow ? 'Low Risk' : isMed ? 'Medium Risk' : 'High Risk'}
           </div>
-
           <p className="mt-6 text-on-surface-variant text-sm font-medium leading-relaxed">
             AI analyzed product registration, vendor signals, and pricing to generate this score.
           </p>
@@ -162,8 +148,6 @@ export default function Result() {
 
         {/* Right Side */}
         <div className="lg:col-span-8 flex flex-col gap-8">
-
-          {/* Flags */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -174,13 +158,12 @@ export default function Result() {
               <CheckCircle size={20} className="text-secondary" />
               Risk Flags Analysis
             </h3>
-
             {analysis.flags.length === 0 ? (
               <div className="flex items-center gap-4 p-4 rounded-xl bg-on-tertiary-container/5 border border-on-tertiary-container/20">
                 <CheckCircle size={24} className="text-on-tertiary-container shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-on-surface">No risk flags detected</p>
-                  <p className="text-xs text-on-surface-variant mt-1">All product and vendor checks passed.</p>
+                  <p className="text-xs text-on-surface-variant mt-1">All checks passed.</p>
                 </div>
               </div>
             ) : (
@@ -197,7 +180,6 @@ export default function Result() {
             )}
           </motion.div>
 
-          {/* Product summary */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -222,7 +204,7 @@ export default function Result() {
         </div>
       </div>
 
-      {/* ── Action section ─────────────────────────────────────────────────── */}
+      {/* Action */}
       <div className="flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -241,7 +223,7 @@ export default function Result() {
             <>
               <h2 className="text-2xl font-bold text-error">Payment Blocked</h2>
               <p className="text-base text-on-surface-variant">
-                High risk signals detected. Payment is paused. Request additional documents before proceeding.
+                High risk detected. Request additional documents before proceeding.
               </p>
               <Link to="/verify">
                 <button className="px-10 h-14 rounded-2xl font-bold border-2 border-error text-error hover:bg-error/5 transition-colors">
@@ -254,7 +236,7 @@ export default function Result() {
               <h2 className="text-2xl font-bold text-on-surface">Secure Your Purchase</h2>
               <p className="text-base text-on-surface-variant">
                 {isLow
-                  ? 'Product and vendor passed verification. Proceed to pay securely via Squad by GTCO.'
+                  ? 'Product and vendor passed verification. Proceed to pay securely via Squad.'
                   : 'Medium risk detected. Review flags above before proceeding.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -288,7 +270,7 @@ export default function Result() {
         </motion.div>
       </div>
 
-      {/* ── Payment Modal ──────────────────────────────────────────────────── */}
+      {/* Payment Modal */}
       <AnimatePresence>
         {showPayment && (
           <motion.div
@@ -322,14 +304,14 @@ export default function Result() {
                   </motion.div>
                   <h3 className="text-2xl font-bold text-on-surface">Payment Initiated!</h3>
                   <p className="text-on-surface-variant text-sm">
-                    Click the button below to complete payment on Squad's checkout.
+                    Click below to complete payment on Squad's checkout.
                   </p>
                   {checkoutUrl && (
-                    <a
+                    
                       href={checkoutUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full h-12 rounded-xl bg-on-tertiary-container text-white font-bold flex items-center justify-center gap-2"
+                      className="flex w-full h-12 rounded-xl bg-on-tertiary-container text-white font-bold items-center justify-center gap-2"
                     >
                       Open Squad Checkout <ArrowRight size={18} />
                     </a>
@@ -346,9 +328,7 @@ export default function Result() {
                   <div className="mb-6 p-3 rounded-xl bg-on-tertiary-container/5 border border-on-tertiary-container/20 text-on-tertiary-container text-xs font-bold">
                     ✓ Verification #{report.id} — {analysis.verdict}
                   </div>
-
                   <h3 className="text-xl font-bold text-on-surface mb-6">Confirm Payment via Squad</h3>
-
                   <div className="space-y-4 mb-6">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
@@ -359,49 +339,4 @@ export default function Result() {
                         value={payEmail}
                         onChange={e => setPayEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-surface-container-low focus:ring-2 focus:ring-secondary outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
-                        Amount (₦)
-                      </label>
-                      <input
-                        type="number"
-                        value={payAmount}
-                        onChange={e => setPayAmount(e.target.value)}
-                        placeholder="12500"
-                        className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-surface-container-low focus:ring-2 focus:ring-secondary outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {payError && (
-                    <p className="mb-4 text-sm text-error font-medium flex items-center gap-2">
-                      <AlertTriangle size={14} /> {payError}
-                    </p>
-                  )}
-
-                  <button
-                    onClick={handlePayment}
-                    disabled={payLoading}
-                    className="w-full h-14 rounded-2xl bg-on-tertiary-container text-white font-bold flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {payLoading
-                      ? <><Loader size={20} className="animate-spin" /> Processing...</>
-                      : <>Pay ₦{Number(payAmount || 0).toLocaleString()} via Squad <ArrowRight size={20} /></>
-                    }
-                  </button>
-
-                  <p className="mt-4 text-center text-[10px] text-on-surface-variant flex items-center justify-center gap-1">
-                    <Lock size={12} /> Secured by Squad Payment API
-                  </p>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+                        className="w-full h-12 px-4 rounded-xl border border-on-surface/10 bg-surface-container-low focus:ring-2 focus:ring-secondary outline-n
